@@ -1,0 +1,20 @@
+# Search engines are welcome; aggressive crawlers are not.
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://novanetdigital.com/sitemap.xml
