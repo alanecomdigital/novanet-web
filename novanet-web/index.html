@@ -13,8 +13,8 @@
 <!-- Performance: self-hosted fonts, preloaded -->
 <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=3">
-<script src="script.js?v=3" defer></script>
+<link rel="stylesheet" href="styles.css?v=4">
+<script src="script.js?v=4" defer></script>
 
 <!-- Icons -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
@@ -244,6 +244,10 @@
         </div>
         <form class="form" id="contact-form" action="https://formsubmit.co/info@novanetdigital.com" method="POST" novalidate>
           <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
+          <input type="hidden" name="_subject" value="Novanet: Consultation request">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_next" value="https://novanetdigital.com/?sent=1#contact">
           <label><span data-i18n="fmName">Name</span><input name="name" type="text" autocomplete="name" minlength="2" maxlength="80" required></label>
           <label><span data-i18n="fmEmail">Email</span><input name="email" type="email" autocomplete="email" maxlength="120" required></label>
           <label><span data-i18n="fmMsg">What would you like to automate?</span><textarea name="message" rows="4" minlength="10" maxlength="2000" required></textarea></label>

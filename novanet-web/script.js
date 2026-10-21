@@ -51,6 +51,7 @@
       fmSend: "Get My Free Strategy Call", fmNote: "We reply within one business day.",
       fmError: "Please complete all fields (message of at least 10 characters) with a valid email.",
       fmSending: "Sending…",
+      fmActivate: "This form is pending activation. Check the inbox and spam folder of info@novanetdigital.com for the FormSubmit email and click \"Activate Form\", then send again.",
       fmWait: "You just sent a message. Please wait a couple of minutes before sending another.",
       fmOk: "Thank you! Your message was sent. We'll get back to you within one business day.",
       fmFail: 'Something went wrong. Please email us at <a href="mailto:info@novanetdigital.com">info@novanetdigital.com</a>.',
@@ -114,6 +115,7 @@
       fmSend: "Quiero mi llamada gratuita", fmNote: "Respondemos en un día hábil.",
       fmError: "Completa todos los campos (mensaje de al menos 10 caracteres) con un correo válido.",
       fmSending: "Enviando…",
+      fmActivate: "El formulario está pendiente de activación. Revisa la bandeja de entrada y el spam de info@novanetdigital.com, abre el correo de FormSubmit, pulsa \"Activate Form\" y vuelve a enviar.",
       fmWait: "Acabas de enviar un mensaje. Espera un par de minutos antes de enviar otro.",
       fmOk: "¡Gracias! Tu mensaje fue enviado. Te responderemos en un día hábil.",
       fmFail: 'Algo salió mal. Escríbenos a <a href="mailto:info@novanetdigital.com">info@novanetdigital.com</a>.',
@@ -318,6 +320,17 @@
       });
       fo.observe(form);
     }
+    function nativeSubmit() {
+      var d = I18N[current];
+      form.elements._subject.value = "Novanet: " + d.fmSubject + " - " + form.elements.name.value.trim();
+      form.elements._next.value = location.origin + location.pathname + "?sent=1#contact";
+      HTMLFormElement.prototype.submit.call(form);
+    }
+    if (/[?&]sent=1/.test(location.search)) {
+      note.textContent = I18N[current].fmOk;
+      note.classList.add("is-ok");
+      if (history.replaceState) history.replaceState(null, "", location.pathname + "#contact");
+    }
     function fakeSuccess() {
       // Bots get a "success" so they don't retry; nothing is sent.
       form.reset();
@@ -374,15 +387,26 @@
           _blacklist: "viagra, casino, backlinks, seo services, crypto airdrop, loan offer, porn"
         })
       })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-        .then(function (res) {
-          if (!res.ok || String(res.d.success) !== "true") throw new Error("send failed");
-          try { localStorage.setItem("novanet-last-send", String(Date.now())); } catch (e3) { /* ignore */ }
-          form.reset();
-          note.textContent = dict.fmOk;
-          note.classList.add("is-ok");
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; });
         })
-        .catch(function () {
+        .then(function (res) {
+          if (res.ok && String(res.d.success) === "true") {
+            try { localStorage.setItem("novanet-last-send", String(Date.now())); } catch (e3) { /* ignore */ }
+            form.reset();
+            note.textContent = dict.fmOk;
+            note.classList.add("is-ok");
+            return;
+          }
+          var m = String((res.d && res.d.message) || "");
+          if (window.console) console.warn("FormSubmit response:", res.d);
+          if (/activat/i.test(m)) { note.textContent = dict.fmActivate; return; }
+          throw new Error(m || "send failed");
+        })
+        .catch(function (err) {
+          if (window.console) console.warn("Form send error:", err);
+          // Network/CORS/blocked request: fall back to a normal form submission.
+          if (err && err.name === "TypeError") { nativeSubmit(); return; }
           note.innerHTML = dict.fmFail; // static trusted string
         })
         .then(function () {
