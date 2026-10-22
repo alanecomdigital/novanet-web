@@ -304,7 +304,13 @@
       });
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) {
-          if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
+          if (en.isIntersecting) {
+            var el = en.target;
+            el.classList.add("is-visible");
+            io.unobserve(el);
+            // After the entrance animation, hand control back to the element's own hover effects
+            setTimeout(function () { el.classList.remove("reveal"); }, 1400);
+          }
         });
       }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
       reveals.forEach(function (el) { io.observe(el); });
