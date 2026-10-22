@@ -78,6 +78,7 @@
         "<p><b>Services:</b> work already performed is not refundable. If a project is cancelled before work starts, any advance payment is refunded in full.</p>" +
         "<p>Requests: info@novanetdigital.com. Approved refunds are returned to the original payment method.</p>",
       rights: "All rights reserved.",
+      footReg: "Limited liability company registered in Wyoming, USA",
       title: "AI Agents & Chatbots for Small Businesses | Novanet LLC"
     },
     es: {
@@ -150,6 +151,7 @@
         "<p><b>Servicios:</b> el trabajo ya realizado no es reembolsable. Si un proyecto se cancela antes de empezar, el adelanto se devuelve completo.</p>" +
         "<p>Solicitudes: info@novanetdigital.com. Los reembolsos aprobados se devuelven al medio de pago original.</p>",
       rights: "Todos los derechos reservados.",
+      footReg: "Sociedad de responsabilidad limitada registrada en Wyoming, EE. UU.",
       title: "Agentes de IA y chatbots para pymes | Novanet LLC"
     }
   };
