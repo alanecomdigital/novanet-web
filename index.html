@@ -13,8 +13,9 @@
 <!-- Performance: self-hosted fonts, preloaded -->
 <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=9">
-<script src="script.js?v=9" defer></script>
+<link rel="stylesheet" href="styles.css?v=11">
+<script src="config.js" defer></script>
+<script src="script.js?v=11" defer></script>
 
 <!-- Icons -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
@@ -270,12 +271,13 @@
           <p data-i18n="ctaSub">Tell us about your business. We reply within one business day with a first recommendation.</p>
           <a class="contact__mail" href="mailto:info@novanetdigital.com">info@novanetdigital.com</a>
         </div>
-        <form class="form" id="contact-form" action="https://formsubmit.co/info@novanetdigital.com" method="POST" novalidate>
-          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
-          <input type="hidden" name="_subject" value="Novanet: Consultation request">
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_template" value="table">
-          <input type="hidden" name="_next" value="https://novanetdigital.com/?sent=1#contact">
+        <form class="form" id="contact-form" action="https://api.web3forms.com/submit" method="POST" novalidate>
+          <!-- Web3Forms key is injected at runtime from the WEB3FORMS_KEY variable in Easypanel (config.js) -->
+          <input type="hidden" name="access_key" value="">
+          <input type="hidden" name="subject" value="Novanet: Consultation request">
+          <input type="hidden" name="from_name" value="Novanet website">
+          <input type="hidden" name="redirect" value="https://novanetdigital.com/?sent=1#contact">
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
           <label><span data-i18n="fmName">Name</span><input name="name" type="text" autocomplete="name" minlength="2" maxlength="80" required></label>
           <label><span data-i18n="fmEmail">Email</span><input name="email" type="email" autocomplete="email" maxlength="120" required></label>
           <label><span data-i18n="fmMsg">What would you like to automate?</span><textarea name="message" rows="4" minlength="10" maxlength="2000" required></textarea></label>

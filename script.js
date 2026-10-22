@@ -57,7 +57,7 @@
       fmSend: "Get My Free Strategy Call", fmNote: "We reply within one business day.",
       fmError: "Please complete all fields (message of at least 10 characters) with a valid email.",
       fmSending: "Sending…",
-      fmActivate: "This form is pending activation. Check the inbox and spam folder of info@novanetdigital.com for the FormSubmit email and click \"Activate Form\", then send again.",
+      fmConfig: "The form is not configured yet. Please email us at info@novanetdigital.com.",
       fmWait: "You just sent a message. Please wait a couple of minutes before sending another.",
       fmOk: "Thank you! Your message was sent. We'll get back to you within one business day.",
       fmFail: 'Something went wrong. Please email us at <a href="mailto:info@novanetdigital.com">info@novanetdigital.com</a>.',
@@ -129,7 +129,7 @@
       fmSend: "Quiero mi llamada gratuita", fmNote: "Respondemos en un día hábil.",
       fmError: "Completa todos los campos (mensaje de al menos 10 caracteres) con un correo válido.",
       fmSending: "Enviando…",
-      fmActivate: "El formulario está pendiente de activación. Revisa la bandeja de entrada y el spam de info@novanetdigital.com, abre el correo de FormSubmit, pulsa \"Activate Form\" y vuelve a enviar.",
+      fmConfig: "El formulario aún no está configurado. Escríbenos a info@novanetdigital.com.",
       fmWait: "Acabas de enviar un mensaje. Espera un par de minutos antes de enviar otro.",
       fmOk: "¡Gracias! Tu mensaje fue enviado. Te responderemos en un día hábil.",
       fmFail: 'Algo salió mal. Escríbenos a <a href="mailto:info@novanetdigital.com">info@novanetdigital.com</a>.',
@@ -154,8 +154,9 @@
     }
   };
 
-  // Free form-to-email service (FormSubmit). Activate once via the email it sends you.
-  var FORM_ENDPOINT = "https://formsubmit.co/ajax/info@novanetdigital.com";
+  // Free form-to-email service: Web3Forms (250 messages/month, no account needed).
+  // The access key comes from config.js, generated in Docker from the WEB3FORMS_KEY env variable.
+  var FORM_ENDPOINT = "https://api.web3forms.com/submit";
 
   var STORE_KEY = "novanet-lang";
   var current = "en";
@@ -361,8 +362,8 @@
     }
     function nativeSubmit() {
       var d = I18N[current];
-      form.elements._subject.value = "Novanet: " + d.fmSubject + " - " + form.elements.name.value.trim();
-      form.elements._next.value = location.origin + location.pathname + "?sent=1#contact";
+      form.elements.subject.value = "Novanet: " + d.fmSubject + " - " + form.elements.name.value.trim();
+      form.elements.redirect.value = location.origin + location.pathname + "?sent=1#contact";
       HTMLFormElement.prototype.submit.call(form);
     }
     if (/[?&]sent=1/.test(location.search)) {
@@ -390,7 +391,7 @@
       if (!ok) { note.textContent = dict.fmError; return; }
       // ---- Anti-spam checks (silent for bots, friendly for people) ----
       // 1) Honeypot: hidden field only bots fill in.
-      if (form.elements._honey && form.elements._honey.value) { fakeSuccess(); return; }
+      if (form.elements.botcheck && form.elements.botcheck.checked) { fakeSuccess(); return; }
       // 2) Time trap: humans need more than 4 seconds to fill the form.
       if (Date.now() - formShownAt < 4000) { fakeSuccess(); return; }
       // 3) Content filter: too many links or typical spam patterns.
@@ -405,6 +406,11 @@
       try { last = Number(localStorage.getItem("novanet-last-send")) || 0; } catch (e2) { /* ignore */ }
       if (Date.now() - last < 120000) { note.textContent = dict.fmWait; return; }
 
+      var cfg = window.NOVANET_CONFIG || {};
+      var accessKey = cfg.web3formsKey || (form.elements.access_key && form.elements.access_key.value) || "";
+      if (!accessKey || accessKey.indexOf("YOUR_") === 0) { note.textContent = dict.fmConfig; return; }
+      if (form.elements.access_key) form.elements.access_key.value = accessKey; // used by the fallback submit
+
       var btn = form.querySelector('button[type="submit"]');
       var label = btn.textContent;
       btn.disabled = true;
@@ -415,15 +421,14 @@
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
+          access_key: accessKey,
+          subject: "Novanet: " + dict.fmSubject + " - " + name.value.trim(),
+          from_name: "Novanet website",
           name: name.value.trim(),
           email: email.value.trim(),
           message: msg.value.trim(),
-          language: current,
-          _subject: "Novanet: " + dict.fmSubject + " - " + name.value.trim(),
-          _replyto: email.value.trim(),
-          _template: "table",
-          _captcha: "false",
-          _blacklist: "viagra, casino, backlinks, seo services, crypto airdrop, loan offer, porn"
+          language: current === "es" ? "Español" : "English",
+          botcheck: false
         })
       })
         .then(function (r) {
@@ -438,8 +443,7 @@
             return;
           }
           var m = String((res.d && res.d.message) || "");
-          if (window.console) console.warn("FormSubmit response:", res.d);
-          if (/activat/i.test(m)) { note.textContent = dict.fmActivate; return; }
+          if (window.console) console.warn("Web3Forms response:", res.d);
           throw new Error(m || "send failed");
         })
         .catch(function (err) {
