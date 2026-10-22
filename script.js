@@ -252,6 +252,23 @@
     var y = document.getElementById("year");
     if (y) y.textContent = new Date().getFullYear();
 
+    // Logo: go to the very top of the page (not under the sticky header) and clean the URL
+    document.querySelectorAll("[data-scroll-top]").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // allow open in new tab
+        e.preventDefault();
+        var nav = document.getElementById("nav");
+        if (nav && nav.classList.contains("is-open")) {
+          nav.classList.remove("is-open");
+          var mb = document.querySelector(".menu-btn");
+          if (mb) mb.setAttribute("aria-expanded", "false");
+        }
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+        if (history.replaceState) history.replaceState(null, "", location.pathname + location.search);
+      });
+    });
+
     // Mobile menu
     var menuBtn = document.querySelector(".menu-btn");
     var nav = document.getElementById("nav");
